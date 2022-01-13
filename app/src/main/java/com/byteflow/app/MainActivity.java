@@ -196,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements AudioCollector.Ca
         ///sdcard/Android/data/com.byteflow.app/files/Download
         String fileDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         CommonUtils.copyAssetsDirToSDCard(MainActivity.this, "poly", fileDir + "/model");
+        CommonUtils.copyAssetsDirToSDCard(MainActivity.this, "finishingMill", fileDir + "/model");
         CommonUtils.copyAssetsDirToSDCard(MainActivity.this, "fonts", fileDir);
         CommonUtils.copyAssetsDirToSDCard(MainActivity.this, "yuv", fileDir);
     }
