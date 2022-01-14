@@ -116,6 +116,7 @@ void Model3DSample::Init()
     {
         m_pShader = new Shader(vShaderStr, fNoTextureShaderStr);
     }
+    mLineSample.Init();
 }
 
 void Model3DSample::LoadImage(NativeImage *pImage)
@@ -141,6 +142,9 @@ void Model3DSample::Draw(int screenW, int screenH)
     m_pShader->setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
     m_pShader->setVec3("viewPos", glm::vec3(0, 0, m_pModel->GetMaxViewDistance()));
     m_pModel->Draw((*m_pShader));
+
+    mLineSample.setMVPMatrix(m_MVPMatrix);
+    mLineSample.Draw(screenW, screenH);
 }
 
 void Model3DSample::Destroy()
@@ -157,6 +161,11 @@ void Model3DSample::Destroy()
         delete m_pShader;
         m_pShader = nullptr;
     }
+    mLineSample.Destroy();
+}
+
+void Model3DSample::SetColor(int index, float r, float g, float b){
+    mLineSample.SetColor(index,r,g,b);
 }
 
 void Model3DSample::UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio)
@@ -200,4 +209,117 @@ void Model3DSample::UpdateTransformMatrix(float rotateX, float rotateY, float sc
 	m_AngleY = static_cast<int>(rotateY);
 	m_ScaleX = scaleX;
 	m_ScaleY = scaleY;
+}
+
+LineSample::LineSample()
+{
+    m_AngleX = 0;
+    m_AngleY = 0;
+
+    m_ScaleX = 1.0f;
+    m_ScaleY = 1.0f;
+}
+
+LineSample::~LineSample()
+{
+}
+
+void LineSample::Init()
+{
+    char vShaderStr_line[] =
+            "#version 300 es                          \n"
+            "layout(location = 0) in vec4 vPosition;  \n"
+            "uniform mat4 u_MVPMatrix;\n"
+            "out vec2 v_texCoord;\n"
+            "void main()                              \n"
+            "{                                        \n"
+            "    gl_Position = u_MVPMatrix * vPosition;\n"
+            "    v_texCoord = vPosition.zw;\n"
+            "}                                        \n";
+
+    char fShaderStr_line[] =
+            "#version 300 es                              \n"
+            "precision mediump float;                     \n"
+            "out vec4 fragColor;                          \n"
+            "uniform vec4 vColor;                          \n"
+            "void main()                                  \n"
+            "{                                            \n"
+            "   fragColor = vColor;                       \n"
+            "}                                            \n";
+    m_ProgramObj = GLUtils::CreateProgram(vShaderStr_line, fShaderStr_line, m_VertexShader, m_FragmentShader);
+}
+
+void LineSample::Draw(int screenW, int screenH)
+{
+    GLfloat vVertices[] = {
+        0.0f, 500.0f, 100.0f,
+        0.0f, 250.0f, 100.0f,
+        2.0f, 250.0f, 100.0f,
+        0.0f, 500.0f, 100.0f,
+        2.0f, 250.0f, 100.0f,
+        2.0f, 500.0f, 100.0f,
+
+        0.0f, 500.0f, 500.0f,
+        0.0f, 250.0f, 500.0f,
+        2.0f, 250.0f, 500.0f,
+        0.0f, 500.0f, 500.0f,
+        2.0f, 250.0f, 500.0f,
+        2.0f, 500.0f, 500.0f,
+
+        0.0f, 500.0f, 800.0f,
+        0.0f, 250.0f, 800.0f,
+        2.0f, 250.0f, 800.0f,
+        0.0f, 500.0f, 800.0f,
+        2.0f, 250.0f, 800.0f,
+        2.0f, 500.0f, 800.0f,
+
+        0.0f, 500.0f, 1400.0f,
+        0.0f, 250.0f, 1400.0f,
+        2.0f, 250.0f, 1400.0f,
+        0.0f, 500.0f, 1400.0f,
+        2.0f, 250.0f, 1400.0f,
+        2.0f, 500.0f, 1400.0f,
+    };
+
+    if(m_ProgramObj == 0)
+        return;
+
+    // Use the program object
+    glUseProgram (m_ProgramObj);
+
+    // Load the vertex data
+    int handler = glGetAttribLocation(m_ProgramObj, "vPosition");
+    int handler_max = glGetUniformLocation(m_ProgramObj, "u_MVPMatrix");
+    int handler_color = glGetUniformLocation(m_ProgramObj, "vColor");
+    glVertexAttribPointer (handler, 3, GL_FLOAT, GL_FALSE, 0, vVertices );
+    glUniformMatrix4fv (handler_max, 1, GL_FALSE, &m_MVPMatrix[0][0] );
+    glUniform4fv (handler_color, 1, colors[0]);
+    glEnableVertexAttribArray (handler);
+    glDrawArrays (GL_TRIANGLES, 0, 24);
+    glDisableVertexAttribArray(handler);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); //禁用byte-alignment限制
+    glEnable(GL_BLEND);
+
+    glUseProgram (GL_NONE);
+}
+
+void LineSample::Destroy()
+{
+    if (m_ProgramObj)
+    {
+        glDeleteProgram(m_ProgramObj);
+        m_ProgramObj = GL_NONE;
+    }
+}
+
+void LineSample::setMVPMatrix(glm::mat4 &mvpMatrix)
+{
+    m_MVPMatrix = mvpMatrix;
+}
+
+void LineSample::SetColor(int index, float r, float g, float b){
+    colors[index][0] = r;
+    colors[index][1] = g;
+    colors[index][2] = b;
 }

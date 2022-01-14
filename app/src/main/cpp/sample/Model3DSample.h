@@ -12,6 +12,42 @@
 #include <model.h>
 #include "GLSampleBase.h"
 
+class LineSample
+{
+public:
+	LineSample();
+	virtual ~LineSample();
+	virtual void Init();
+	virtual void Draw(int screenW, int screenH);
+	virtual void Destroy();
+	virtual void setMVPMatrix(glm::mat4 &mvpMatrix);
+	virtual void SetColor(int index, float r, float g, float b);
+
+private:
+	GLuint m_ProgramObj;
+	GLuint m_VertexShader;
+	GLuint m_FragmentShader;
+	GLfloat colors[10][4] = {
+			1.0f,0.0f,0.0f,1.0f,
+			1.0f,0.0f,0.0f,1.0f,
+			1.0f,0.0f,0.0f,1.0f,
+			1.0f,0.0f,0.0f,1.0f,
+			1.0f,0.0f,0.0f,1.0f,
+			1.0f,0.0f,0.0f,1.0f,
+			1.0f,0.0f,0.0f,1.0f,
+			1.0f,0.0f,0.0f,1.0f,
+			1.0f,0.0f,0.0f,1.0f,
+			1.0f,0.0f,0.0f,1.0f,
+	};
+
+	int m_AngleX;
+	int m_AngleY;
+	float m_ScaleX;
+	float m_ScaleY;
+	glm::mat4 m_MVPMatrix;
+
+};
+
 class Model3DSample : public GLSampleBase
 {
 public:
@@ -30,6 +66,8 @@ public:
 
 	void UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio);
 
+	virtual void SetColor(int index, float r, float g, float b);
+
 private:
 	glm::mat4 m_MVPMatrix;
 	glm::mat4 m_ModelMatrix;
@@ -40,6 +78,8 @@ private:
 	int m_AngleY;
 	float m_ScaleX;
 	float m_ScaleY;
+
+	LineSample mLineSample;
 
 };
 

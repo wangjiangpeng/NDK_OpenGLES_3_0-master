@@ -36,6 +36,8 @@ public:
 
 	void OnDrawFrame();
 
+	void SetColor(int index, float r, float g, float b);
+
 	static MyGLRenderContext* GetInstance();
 	static void DestroyInstance();
 

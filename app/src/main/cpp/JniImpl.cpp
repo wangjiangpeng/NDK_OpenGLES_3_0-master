@@ -147,6 +147,13 @@ JNIEXPORT void JNICALL native_OnDrawFrame(JNIEnv *env, jobject instance)
 
 }
 
+JNIEXPORT void JNICALL native_SetColor(JNIEnv *env, jobject instance, jint index, jfloat r, jfloat g, jfloat b)
+{
+MyGLRenderContext::GetInstance()->SetColor(index, r,g,b);
+
+}
+
+
 
 /*
  * Class:     com_byteflow_app_egl_NativeBgRender
@@ -223,6 +230,7 @@ static JNINativeMethod g_RenderMethods[] = {
 		{"native_OnSurfaceCreated",          "()V",       (void *)(native_OnSurfaceCreated)},
 		{"native_OnSurfaceChanged",          "(II)V",     (void *)(native_OnSurfaceChanged)},
 		{"native_OnDrawFrame",               "()V",       (void *)(native_OnDrawFrame)},
+		{"native_SetColor",                  "(IFFF)V",       (void *)(native_SetColor)},
 };
 
 static JNINativeMethod g_BgRenderMethods[] = {

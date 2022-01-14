@@ -82,4 +82,8 @@ public class MyGLRender implements GLSurfaceView.Renderer {
         mNativeRender.native_UpdateTransformMatrix(rotateX, rotateY, scaleX, scaleY);
     }
 
+    public void setColor(int index, float r, float g, float b) {
+        mNativeRender.native_SetColor(index, r, g, b);
+    }
+
 }

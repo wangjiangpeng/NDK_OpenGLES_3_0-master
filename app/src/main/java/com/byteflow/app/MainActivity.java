@@ -52,6 +52,7 @@ import static com.byteflow.app.MyGLSurfaceView.IMAGE_FORMAT_GARY;
 import static com.byteflow.app.MyGLSurfaceView.IMAGE_FORMAT_NV21;
 import static com.byteflow.app.MyGLSurfaceView.IMAGE_FORMAT_RGBA;
 import static com.byteflow.app.MyNativeRender.SAMPLE_TYPE;
+import static com.byteflow.app.MyNativeRender.SAMPLE_TYPE_3D_MODEL;
 import static com.byteflow.app.MyNativeRender.SAMPLE_TYPE_BASIC_LIGHTING;
 import static com.byteflow.app.MyNativeRender.SAMPLE_TYPE_BLENDING;
 import static com.byteflow.app.MyNativeRender.SAMPLE_TYPE_COORD_SYSTEM;
@@ -464,6 +465,11 @@ public class MainActivity extends AppCompatActivity implements AudioCollector.Ca
 //                        mGLSurfaceView.setAspectRatio(tmp.getWidth(), tmp.getHeight());
 //                        mGLSurfaceView.setRenderMode(RENDERMODE_CONTINUOUSLY);
 //                        break;
+
+                    case SAMPLE_TYPE_3D_MODEL:
+                        mGLRender.setColor(0, 0.0f,0.0f,1.0f);
+                        break;
+
                     default:
                         break;
                 }

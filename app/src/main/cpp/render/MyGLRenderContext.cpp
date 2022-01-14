@@ -362,6 +362,14 @@ void MyGLRenderContext::OnDrawFrame()
 	}
 }
 
+void MyGLRenderContext::SetColor(int index, float r, float g, float b) {
+	LOGCATE("MyGLRenderContext::OnDrawFrame");
+	if (m_pCurSample)
+	{
+		m_pCurSample->SetColor(index,r,g,b);
+	}
+}
+
 MyGLRenderContext *MyGLRenderContext::GetInstance()
 {
 	LOGCATE("MyGLRenderContext::GetInstance");

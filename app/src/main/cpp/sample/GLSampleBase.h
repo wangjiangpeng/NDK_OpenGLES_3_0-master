@@ -106,6 +106,9 @@ public:
 	virtual void SetGravityXY(float x, float y)
 	{}
 
+	virtual void SetColor(int index, float r, float g, float b)
+	{}
+
 	virtual void Init() = 0;
 	virtual void Draw(int screenW, int screenH) = 0;
 

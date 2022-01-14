@@ -88,4 +88,6 @@ public class MyNativeRender {
     public native void native_OnSurfaceChanged(int width, int height);
 
     public native void native_OnDrawFrame();
+
+    public native void native_SetColor(int index, float r, float g, float b);
 }
