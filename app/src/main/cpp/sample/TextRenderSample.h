@@ -42,14 +42,19 @@ public:
 	virtual void UpdateTransformMatrix(float rotateX, float rotateY, float scaleX, float scaleY);
 
 	void UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio);
+	void setMVPMatrix(glm::mat4 mvpMatrix);
+
+	void RenderText(int screenW, int screenH, std::string text, GLfloat x, GLfloat y, GLfloat z, GLfloat scale);
+
+	virtual void SetColor(float r, float g, float b);
 
 private:
 	/**
 	 * (x,y)为屏幕坐标系的位置，即原点位于屏幕中心，x(-1.0,1.0), y(-1.0,1.0)
 	 * */
-	void RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color, glm::vec2 viewport);
 
 	void RenderText(const wchar_t* text, int textLen, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color, glm::vec2 viewport);
+	void RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color, glm::vec2 viewport);
 
 	void LoadFacesByASCII();
 	void LoadFacesByUnicode(const wchar_t* text, int size);
@@ -61,6 +66,10 @@ private:
 	GLuint m_VboId;
 	NativeImage m_RenderImage;
 	glm::mat4 m_MVPMatrix;
+
+	GLfloat color[4]{
+			1.0f,1.0f,1.0f,1.0f,
+	};
 
 	int m_AngleX;
 	int m_AngleY;

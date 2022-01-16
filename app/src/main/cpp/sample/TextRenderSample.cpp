@@ -56,12 +56,13 @@ void TextRenderSample::Init()
 	char vShaderStr[] =
             "#version 300 es\n"
             "layout(location = 0) in vec4 a_position;// <vec2 pos, vec2 tex>\n"
+			"layout(location = 1) in vec2 a_texCoord;\n"
             "uniform mat4 u_MVPMatrix;\n"
             "out vec2 v_texCoord;\n"
             "void main()\n"
             "{\n"
-            "    gl_Position = u_MVPMatrix * vec4(a_position.xy, 0.0, 1.0);;\n"
-            "    v_texCoord = a_position.zw;\n"
+            "    gl_Position = u_MVPMatrix * a_position;\n"
+            "    v_texCoord = a_texCoord;\n"
             "}";
 
 	char fShaderStr[] =
@@ -90,15 +91,20 @@ void TextRenderSample::Init()
 	}
 
 	// Generate VAO Id
-	glGenVertexArrays(1, &m_VaoId);
-	// Generate VBO Ids and load the VBOs with data
-	glGenBuffers(1, &m_VboId);
-
-	glBindVertexArray(m_VaoId);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VboId);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+//	glGenVertexArrays(1, &m_VaoId);
+//	// Generate VBO Ids and load the VBOs with data
+//	glGenBuffers(2, m_VboId);
+//	glBindBuffer(GL_ARRAY_BUFFER, m_VboId[0]);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, nullptr, GL_STATIC_DRAW);
+//	glBindBuffer(GL_ARRAY_BUFFER, m_VboId[1]);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(textureCoords), textureCoords, GL_STATIC_DRAW);
+//
+//
+//	glBindVertexArray(m_VaoId);
+//
+//	glBindBuffer(GL_ARRAY_BUFFER, m_VboId[1]);
+//	glEnableVertexAttribArray(1);
+//	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (const void *)0);
     glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
     glBindVertexArray(GL_NONE);
 
@@ -129,6 +135,7 @@ void TextRenderSample::Draw(int screenW, int screenH)
 	LOGCATE("TextRenderSample::Draw()");
 	if(m_ProgramObj == GL_NONE) return;
 
+	glUseProgram(m_ProgramObj);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); //禁用byte-alignment限制
 	glEnable(GL_BLEND);
@@ -137,7 +144,7 @@ void TextRenderSample::Draw(int screenW, int screenH)
 
 	glm::vec2 viewport(m_SurfaceWidth, m_SurfaceHeight);
 
-	UpdateMVPMatrix(m_MVPMatrix, m_AngleX, m_AngleY, viewport.x / viewport.y);
+	//UpdateMVPMatrix(m_MVPMatrix, m_AngleX, m_AngleY, viewport.x / viewport.y);
 	glUniformMatrix4fv(m_MVPMatLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
 
 	// (x,y)为屏幕坐标系的位置，即原点位于屏幕中心，x(-1.0,1.0), y(-1.0,1.0)
@@ -145,7 +152,7 @@ void TextRenderSample::Draw(int screenW, int screenH)
 	RenderText("Welcome to add my WeChat.", -0.9f, 0.0f, 2.0f, glm::vec3(0.2, 0.4f, 0.7f), viewport);
 
 	RenderText(BYTE_FLOW, sizeof(BYTE_FLOW)/sizeof(BYTE_FLOW[0]) - 1, -0.9f, -0.2f, 1.0f, glm::vec3(0.7, 0.4f, 0.2f), viewport);
-
+	glUseProgram(GL_NONE);
 }
 
 void TextRenderSample::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX, float scaleY)
@@ -155,6 +162,96 @@ void TextRenderSample::UpdateTransformMatrix(float rotateX, float rotateY, float
 	m_AngleY = static_cast<int>(rotateY);
 	m_ScaleX = scaleX;
 	m_ScaleY = scaleY;
+}
+
+void TextRenderSample::RenderText(int screenW, int screenH, std::string text, GLfloat x, GLfloat y, GLfloat z, GLfloat scale)
+{
+	m_SurfaceWidth = screenW;
+	m_SurfaceHeight = screenH;
+	LOGCATE("TextRenderSample::Draw()");
+	if(m_ProgramObj == GL_NONE) return;
+
+	glUseProgram(m_ProgramObj);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); //禁用byte-alignment限制
+	glEnable(GL_BLEND);
+	//glEnable(GL_CULL_FACE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glm::vec2 viewport(m_SurfaceWidth, m_SurfaceHeight);
+	glUniformMatrix4fv(m_MVPMatLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
+
+	glUniform3f(glGetUniformLocation(m_ProgramObj, "u_textColor"), color[0], color[1], color[2]);
+	glBindVertexArray(m_VaoId);
+
+	std::string::const_iterator c;
+	x *= viewport.x;
+	y *= viewport.y;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Character ch = m_Characters[*c];
+
+		GLfloat xpos = x + ch.bearing.x * scale;
+		GLfloat ypos = y - (ch.size.y - ch.bearing.y) * scale;
+
+		xpos /= viewport.x;
+		ypos /= viewport.y;
+
+		GLfloat w = ch.size.x * scale;
+		GLfloat h = ch.size.y * scale;
+
+		w /= viewport.x;
+		h /= viewport.y;
+
+		LOGCATE("TextRenderSample::RenderText [xpos,ypos,w,h]=[%f, %f, %f, %f], ch.advance >> 6 = %d", xpos, ypos, w, h, ch.advance >> 6);
+
+		// 当前字符的VBO
+		GLfloat vertices[] = {
+				xpos - w / 2,     ypos + h,   z,
+				xpos - w / 2,     ypos,       z,
+				xpos + w / 2, ypos,       z,
+
+				xpos - w / 2,     ypos + h,   z,
+				xpos + w / 2, ypos,       z,
+				xpos + w / 2, ypos + h,   z,
+		};
+		GLfloat textureCoords[] = {
+				0.0, 0.0 ,
+				0.0, 1.0 ,
+				1.0, 1.0 ,
+
+				0.0, 0.0 ,
+				1.0, 1.0 ,
+				1.0, 0.0
+		};
+
+		// 在方块上绘制字形纹理
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, ch.textureID);
+		glUniform1i(m_SamplerLoc, 0);
+		GO_CHECK_GL_ERROR();
+		// 更新当前字符的VBO
+//		glBindBuffer(GL_ARRAY_BUFFER, m_VboId[0]);
+//		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, textureCoords);
+
+		GO_CHECK_GL_ERROR();
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// 绘制方块
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		GO_CHECK_GL_ERROR();
+		// 更新位置到下一个字形的原点，注意单位是1/64像素
+		x += (ch.advance >> 6) * scale; //(2^6 = 64)
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glUseProgram(GL_NONE);
 }
 
 void TextRenderSample::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale,
@@ -187,14 +284,23 @@ void TextRenderSample::RenderText(std::string text, GLfloat x, GLfloat y, GLfloa
 		LOGCATE("TextRenderSample::RenderText [xpos,ypos,w,h]=[%f, %f, %f, %f], ch.advance >> 6 = %d", xpos, ypos, w, h, ch.advance >> 6);
 
 		// 当前字符的VBO
-		GLfloat vertices[6][4] = {
-				{ xpos,     ypos + h,   0.0, 0.0 },
-				{ xpos,     ypos,       0.0, 1.0 },
-				{ xpos + w, ypos,       1.0, 1.0 },
+		GLfloat vertices[] = {
+				 xpos,     ypos + h,   1.0,
+				 xpos,     ypos,       1.0,
+				 xpos + w, ypos,       1.0,
 
-				{ xpos,     ypos + h,   0.0, 0.0 },
-				{ xpos + w, ypos,       1.0, 1.0 },
-				{ xpos + w, ypos + h,   1.0, 0.0 }
+				 xpos,     ypos + h,   1.0,
+				 xpos + w, ypos,       1.0,
+				 xpos + w, ypos + h,   1.0,
+		};
+		GLfloat textureCoords[] = {
+				 0.0, 0.0 ,
+				 0.0, 1.0 ,
+				 1.0, 1.0 ,
+
+				 0.0, 0.0 ,
+				 1.0, 1.0 ,
+				 1.0, 0.0
 		};
 
 		// 在方块上绘制字形纹理
@@ -203,8 +309,15 @@ void TextRenderSample::RenderText(std::string text, GLfloat x, GLfloat y, GLfloa
 		glUniform1i(m_SamplerLoc, 0);
 		GO_CHECK_GL_ERROR();
 		// 更新当前字符的VBO
-		glBindBuffer(GL_ARRAY_BUFFER, m_VboId);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+//		glBindBuffer(GL_ARRAY_BUFFER, m_VboId[0]);
+//		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, textureCoords);
+
         GO_CHECK_GL_ERROR();
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		// 绘制方块
@@ -448,14 +561,23 @@ void TextRenderSample::RenderText(const wchar_t *text, int textLen, GLfloat x, G
 		LOGCATE("TextRenderSample::RenderText [xpos,ypos,w,h]=[%f, %f, %f, %f]", xpos, ypos, w, h);
 
 		// 当前字符的VBO
-		GLfloat vertices[6][4] = {
-				{ xpos,     ypos + h,   0.0, 0.0 },
-				{ xpos,     ypos,       0.0, 1.0 },
-				{ xpos + w, ypos,       1.0, 1.0 },
+		GLfloat vertices[] = {
+				xpos,     ypos + h,   1.0,
+				xpos,     ypos,       1.0,
+				xpos + w, ypos,       1.0,
 
-				{ xpos,     ypos + h,   0.0, 0.0 },
-				{ xpos + w, ypos,       1.0, 1.0 },
-				{ xpos + w, ypos + h,   1.0, 0.0 }
+				xpos,     ypos + h,   1.0,
+				xpos + w, ypos,       1.0,
+				xpos + w, ypos + h,   1.0,
+		};
+		GLfloat textureCoords[] = {
+				0.0, 0.0 ,
+				0.0, 1.0 ,
+				1.0, 1.0 ,
+
+				0.0, 0.0 ,
+				1.0, 1.0 ,
+				1.0, 0.0
 		};
 
 		// 在方块上绘制字形纹理
@@ -464,8 +586,14 @@ void TextRenderSample::RenderText(const wchar_t *text, int textLen, GLfloat x, G
 		glUniform1i(m_SamplerLoc, 0);
 		GO_CHECK_GL_ERROR();
 		// 更新当前字符的VBO
-		glBindBuffer(GL_ARRAY_BUFFER, m_VboId);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+//		glBindBuffer(GL_ARRAY_BUFFER, m_VboId[0]);
+//		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, textureCoords);
+
 		GO_CHECK_GL_ERROR();
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		// 绘制方块
@@ -476,4 +604,15 @@ void TextRenderSample::RenderText(const wchar_t *text, int textLen, GLfloat x, G
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void TextRenderSample::setMVPMatrix(glm::mat4 mvpMatrix)
+{
+	m_MVPMatrix = mvpMatrix;
+}
+
+void TextRenderSample::SetColor(float r, float g, float b){
+	color[0] = r;
+	color[1] = g;
+	color[2] = b;
 }

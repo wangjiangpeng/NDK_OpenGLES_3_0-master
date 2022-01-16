@@ -468,6 +468,7 @@ public class MainActivity extends AppCompatActivity implements AudioCollector.Ca
 
                     case SAMPLE_TYPE_3D_MODEL:
                         mGLRender.setColor(0, 0.0f,0.0f,1.0f);
+                        mGLRender.setColor(1, 0.0f,1.0f,0.0f);
                         break;
 
                     default:

@@ -11,6 +11,7 @@
 #include <shader.h>
 #include <model.h>
 #include "GLSampleBase.h"
+#include "TextRenderSample.h"
 
 class LineSample
 {
@@ -20,24 +21,15 @@ public:
 	virtual void Init();
 	virtual void Draw(int screenW, int screenH);
 	virtual void Destroy();
-	virtual void setMVPMatrix(glm::mat4 &mvpMatrix);
-	virtual void SetColor(int index, float r, float g, float b);
+	virtual void setMVPMatrix(glm::mat4 mvpMatrix);
+	virtual void SetColor(float r, float g, float b);
 
 private:
 	GLuint m_ProgramObj;
 	GLuint m_VertexShader;
 	GLuint m_FragmentShader;
-	GLfloat colors[10][4] = {
-			1.0f,0.0f,0.0f,1.0f,
-			1.0f,0.0f,0.0f,1.0f,
-			1.0f,0.0f,0.0f,1.0f,
-			1.0f,0.0f,0.0f,1.0f,
-			1.0f,0.0f,0.0f,1.0f,
-			1.0f,0.0f,0.0f,1.0f,
-			1.0f,0.0f,0.0f,1.0f,
-			1.0f,0.0f,0.0f,1.0f,
-			1.0f,0.0f,0.0f,1.0f,
-			1.0f,0.0f,0.0f,1.0f,
+	GLfloat color[4]{
+			1.0f,1.0f,1.0f,1.0f,
 	};
 
 	int m_AngleX;
@@ -80,7 +72,7 @@ private:
 	float m_ScaleY;
 
 	LineSample mLineSample;
-
+	TextRenderSample mTextSample;
 };
 
 
