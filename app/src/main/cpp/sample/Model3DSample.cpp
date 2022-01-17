@@ -16,6 +16,20 @@ Model3DSample::Model3DSample()
 
 	m_pModel = nullptr;
 	m_pShader = nullptr;
+
+    for(int i = 0; i < 200; i+=2){
+        color[i][0] = 1.0f;
+        color[i][1] = 0.0f;
+        color[i][2] = 0.0f;
+        color[i][3] = 1.0f;
+    }
+
+    for(int i = 1; i < 200; i+=2){
+        color[i][0] = 0.0f;
+        color[i][1] = 1.0f;
+        color[i][2] = 0.0f;
+        color[i][3] = 1.0f;
+    }
 }
 
 Model3DSample::~Model3DSample()
@@ -118,6 +132,7 @@ void Model3DSample::Init()
     }
     mLineSample.Init();
     mTextSample.Init();
+
 }
 
 void Model3DSample::LoadImage(NativeImage *pImage)
@@ -145,13 +160,17 @@ void Model3DSample::Draw(int screenW, int screenH)
     m_pModel->Draw((*m_pShader));
 
     mLineSample.setMVPMatrix(m_MVPMatrix);
-    mLineSample.Draw(screenW, screenH);
-
     mTextSample.setMVPMatrix(m_MVPMatrix);
-    mTextSample.RenderText(screenW, screenH, "1", 0.0f, 505.0f, 105.0f, 1000.0f);
-    mTextSample.RenderText(screenW, screenH, "2", 0.0f, 505.0f, 505.0f, 1000.0f);
-    mTextSample.RenderText(screenW, screenH, "3", 0.0f, 505.0f, 805.0f, 1000.0f);
-    mTextSample.RenderText(screenW, screenH, "4", 0.0f, 505.0f, 1405.0f, 1000.0f);
+
+    GLfloat lw = 4.0f;
+    GLfloat bw = 30.0f;
+    GLfloat lh = 300.0f;
+    for(unsigned int i = 0; i < m_pModel->meshes.size(); i++){
+        vector<Vertex> vertices = m_pModel->meshes[i].vertices;
+        Vertex vertice = vertices[0];
+        mLineSample.DrawLine(screenW, screenH, vertice.Position.x, vertice.Position.y, vertice.Position.z, color[i%200], lw, bw, lh);
+        mTextSample.RenderText(screenW, screenH, std::to_string(i), vertice.Position.x - lw / 2, vertice.Position.y + lh + 10.0f, vertice.Position.z + 4.0f, 800.0f, color[i%200+1]);
+    }
 
 }
 
@@ -174,11 +193,9 @@ void Model3DSample::Destroy()
 }
 
 void Model3DSample::SetColor(int index, float r, float g, float b){
-    if(index == 0){
-        mLineSample.SetColor(r,g,b);
-    } else if(index == 1){
-        mTextSample.SetColor(r,g,b);
-    }
+    color[index%200][0] = r;
+    color[index%200][1] = g;
+    color[index%200][2] = b;
 }
 
 void Model3DSample::UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio)
@@ -262,71 +279,28 @@ void LineSample::Init()
     m_ProgramObj = GLUtils::CreateProgram(vShaderStr_line, fShaderStr_line, m_VertexShader, m_FragmentShader);
 }
 
-void LineSample::Draw(int screenW, int screenH)
+void LineSample::DrawLine(int screenW, int screenH, GLfloat x, GLfloat y, GLfloat z, GLfloat *color, GLfloat lw, GLfloat bw, GLfloat lh)
 {
-    GLfloat vVertices[] = {
-        0.0f, 500.0f, 100.0f,
-        0.0f, 250.0f, 100.0f,
-        5.0f, 250.0f, 100.0f,
-        0.0f, 500.0f, 100.0f,
-        5.0f, 250.0f, 100.0f,
-        5.0f, 500.0f, 100.0f,
-
-        -25.0f, 550.0f, 100.0f,
-        -25.0f, 500.0f, 100.0f,
-        25.0f, 500.0f, 100.0f,
-        -25.0f, 550.0f, 100.0f,
-        25.0f, 500.0f, 100.0f,
-        25.0f, 550.0f, 100.0f,
-
-
-        0.0f, 500.0f, 500.0f,
-        0.0f, 250.0f, 500.0f,
-        5.0f, 250.0f, 500.0f,
-        0.0f, 500.0f, 500.0f,
-        5.0f, 250.0f, 500.0f,
-        5.0f, 500.0f, 500.0f,
-
-        -25.0f, 550.0f, 500.0f,
-        -25.0f, 500.0f, 500.0f,
-        25.0f, 500.0f, 500.0f,
-        -25.0f, 550.0f, 500.0f,
-        25.0f, 500.0f, 500.0f,
-        25.0f, 550.0f, 500.0f,
-
-
-        0.0f, 500.0f, 800.0f,
-        0.0f, 250.0f, 800.0f,
-        5.0f, 250.0f, 800.0f,
-        0.0f, 500.0f, 800.0f,
-        5.0f, 250.0f, 800.0f,
-        2.0f, 500.0f, 800.0f,
-
-        -25.0f, 550.0f, 800.0f,
-        -25.0f, 500.0f, 800.0f,
-        25.0f, 500.0f, 800.0f,
-        -25.0f, 550.0f, 800.0f,
-        25.0f, 500.0f, 800.0f,
-        25.0f, 550.0f, 800.0f,
-
-
-        0.0f, 500.0f, 1400.0f,
-        0.0f, 250.0f, 1400.0f,
-        5.0f, 250.0f, 1400.0f,
-        0.0f, 500.0f, 1400.0f,
-        5.0f, 250.0f, 1400.0f,
-        5.0f, 500.0f, 1400.0f,
-
-        -25.0f, 550.0f, 1400.0f,
-        -25.0f, 500.0f, 1400.0f,
-        25.0f, 500.0f, 1400.0f,
-        -25.0f, 550.0f, 1400.0f,
-        25.0f, 500.0f, 1400.0f,
-        25.0f, 550.0f, 1400.0f,
-    };
-
     if(m_ProgramObj == 0)
         return;
+
+    GLfloat bw2 = bw * 2;
+    GLfloat lw12 = lw / 2;
+    GLfloat vVertices[] = {
+            x,         y + lh,    z,
+            x,         y,         z,
+            x + lw,    y,         z,
+            x,         y + lh,    z,
+            x + lw,    y,         z,
+            x + lw,    y + lh,    z,
+
+            x - bw + lw12,    y + lh + bw2,  z,
+            x - bw + lw12,    y + lh,        z,
+            x + bw + lw12,    y + lh,        z,
+            x - bw + lw12,    y + lh + bw2,  z,
+            x + bw + lw12,    y + lh,        z,
+            x + bw + lw12,    y + lh + bw2,  z,
+    };
 
     // Use the program object
     glUseProgram (m_ProgramObj);
@@ -339,7 +313,7 @@ void LineSample::Draw(int screenW, int screenH)
     glUniformMatrix4fv (handler_max, 1, GL_FALSE, &m_MVPMatrix[0][0] );
     glUniform4fv (handler_color, 1, color);
     glEnableVertexAttribArray (handler);
-    glDrawArrays (GL_TRIANGLES, 0, 48);
+    glDrawArrays (GL_TRIANGLES, 0, 12);
     glDisableVertexAttribArray(handler);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); //禁用byte-alignment限制
@@ -360,10 +334,4 @@ void LineSample::Destroy()
 void LineSample::setMVPMatrix(glm::mat4 mvpMatrix)
 {
     m_MVPMatrix = mvpMatrix;
-}
-
-void LineSample::SetColor(float r, float g, float b){
-    color[0] = r;
-    color[1] = g;
-    color[2] = b;
 }

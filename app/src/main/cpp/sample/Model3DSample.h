@@ -19,18 +19,14 @@ public:
 	LineSample();
 	virtual ~LineSample();
 	virtual void Init();
-	virtual void Draw(int screenW, int screenH);
+    virtual void DrawLine(int screenW, int screenH, GLfloat x, GLfloat y, GLfloat z, GLfloat *colors, GLfloat lw, GLfloat bw, GLfloat lh);
 	virtual void Destroy();
 	virtual void setMVPMatrix(glm::mat4 mvpMatrix);
-	virtual void SetColor(float r, float g, float b);
 
 private:
 	GLuint m_ProgramObj;
 	GLuint m_VertexShader;
 	GLuint m_FragmentShader;
-	GLfloat color[4]{
-			1.0f,1.0f,1.0f,1.0f,
-	};
 
 	int m_AngleX;
 	int m_AngleY;
@@ -70,6 +66,8 @@ private:
 	int m_AngleY;
 	float m_ScaleX;
 	float m_ScaleY;
+
+	GLfloat color[200][4]{1.0f};
 
 	LineSample mLineSample;
 	TextRenderSample mTextSample;

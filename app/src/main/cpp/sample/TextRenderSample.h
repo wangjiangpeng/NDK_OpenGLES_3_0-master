@@ -44,9 +44,7 @@ public:
 	void UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio);
 	void setMVPMatrix(glm::mat4 mvpMatrix);
 
-	void RenderText(int screenW, int screenH, std::string text, GLfloat x, GLfloat y, GLfloat z, GLfloat scale);
-
-	virtual void SetColor(float r, float g, float b);
+	void RenderText(int screenW, int screenH, std::string text, GLfloat x, GLfloat y, GLfloat z, GLfloat scale, GLfloat *color);
 
 private:
 	/**
@@ -66,10 +64,6 @@ private:
 	GLuint m_VboId;
 	NativeImage m_RenderImage;
 	glm::mat4 m_MVPMatrix;
-
-	GLfloat color[4]{
-			1.0f,1.0f,1.0f,1.0f,
-	};
 
 	int m_AngleX;
 	int m_AngleY;

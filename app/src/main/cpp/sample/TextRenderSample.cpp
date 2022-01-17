@@ -164,7 +164,7 @@ void TextRenderSample::UpdateTransformMatrix(float rotateX, float rotateY, float
 	m_ScaleY = scaleY;
 }
 
-void TextRenderSample::RenderText(int screenW, int screenH, std::string text, GLfloat x, GLfloat y, GLfloat z, GLfloat scale)
+void TextRenderSample::RenderText(int screenW, int screenH, std::string text, GLfloat x, GLfloat y, GLfloat z, GLfloat scale, GLfloat *color)
 {
 	m_SurfaceWidth = screenW;
 	m_SurfaceHeight = screenH;
@@ -187,11 +187,19 @@ void TextRenderSample::RenderText(int screenW, int screenH, std::string text, GL
 	std::string::const_iterator c;
 	x *= viewport.x;
 	y *= viewport.y;
+
+	GLfloat aw = 0.0f;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Character ch = m_Characters[*c];
+		aw += (ch.size.x * scale);
+	}
+	aw /= 2;
 	for (c = text.begin(); c != text.end(); c++)
 	{
 		Character ch = m_Characters[*c];
 
-		GLfloat xpos = x + ch.bearing.x * scale;
+		GLfloat xpos = x + ch.bearing.x * scale - aw + (ch.size.x * scale / 2);
 		GLfloat ypos = y - (ch.size.y - ch.bearing.y) * scale;
 
 		xpos /= viewport.x;
@@ -609,10 +617,4 @@ void TextRenderSample::RenderText(const wchar_t *text, int textLen, GLfloat x, G
 void TextRenderSample::setMVPMatrix(glm::mat4 mvpMatrix)
 {
 	m_MVPMatrix = mvpMatrix;
-}
-
-void TextRenderSample::SetColor(float r, float g, float b){
-	color[0] = r;
-	color[1] = g;
-	color[2] = b;
 }
