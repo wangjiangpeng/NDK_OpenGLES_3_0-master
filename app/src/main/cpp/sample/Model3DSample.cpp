@@ -133,6 +133,13 @@ void Model3DSample::Init()
     mLineSample.Init();
     mTextSample.Init();
 
+    for(unsigned int i = 0; i < m_pModel->meshes.size(); i++) {
+        vector<Vertex> vertices = m_pModel->meshes[i].vertices;
+        Vertex vertice = vertices[0];
+        pos[i][0] = vertice.Position.x;
+        pos[i][1] = vertice.Position.y;
+        pos[i][2] = vertice.Position.z;
+    }
 }
 
 void Model3DSample::LoadImage(NativeImage *pImage)
@@ -165,11 +172,10 @@ void Model3DSample::Draw(int screenW, int screenH)
     GLfloat lw = 4.0f;
     GLfloat bw = 30.0f;
     GLfloat lh = 300.0f;
-    for(unsigned int i = 0; i < m_pModel->meshes.size(); i++){
-        vector<Vertex> vertices = m_pModel->meshes[i].vertices;
-        Vertex vertice = vertices[0];
-        mLineSample.DrawLine(screenW, screenH, vertice.Position.x, vertice.Position.y, vertice.Position.z, color[i%200], lw, bw, lh);
-        mTextSample.RenderText(screenW, screenH, std::to_string(i), vertice.Position.x - lw / 2, vertice.Position.y + lh + 10.0f, vertice.Position.z + 4.0f, 800.0f, color[i%200+1]);
+    int size = m_pModel->meshes.size();
+    for(unsigned int i = 0; i < size; i++){
+        mLineSample.DrawLine(screenW, screenH, pos[i][0], pos[i][1], pos[i][2], color[i], lw, bw, lh);
+        mTextSample.RenderText(screenW, screenH, std::to_string(i), pos[i][0] - lw / 2, pos[i][1] + lh + 10.0f, pos[i][2] + 4.0f, 800.0f, color[i%200+1]);
     }
 
 }
@@ -315,9 +321,6 @@ void LineSample::DrawLine(int screenW, int screenH, GLfloat x, GLfloat y, GLfloa
     glEnableVertexAttribArray (handler);
     glDrawArrays (GL_TRIANGLES, 0, 12);
     glDisableVertexAttribArray(handler);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); //禁用byte-alignment限制
-    glEnable(GL_BLEND);
 
     glUseProgram (GL_NONE);
 }

@@ -67,7 +67,8 @@ private:
 	float m_ScaleX;
 	float m_ScaleY;
 
-	GLfloat color[200][4]{1.0f};
+	GLfloat color[200][4];
+	GLfloat pos[100][3];
 
 	LineSample mLineSample;
 	TextRenderSample mTextSample;
