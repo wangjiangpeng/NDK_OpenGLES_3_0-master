@@ -88,8 +88,6 @@ public class MyGLSurfaceView extends GLSurfaceView implements ScaleGestureDetect
 
     }
 
-    long lastRequestTime = 0;
-
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         if (e.getPointerCount() == 1) {
@@ -126,11 +124,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements ScaleGestureDetect
                     case SAMPLE_TYPE_KEY_UBO:
                     case SAMPLE_TYPE_KEY_TEXT_RENDER:
                         mGLRender.updateTransformMatrix(mXAngle, mYAngle, mCurScale, mCurScale);
-                        long now = System.currentTimeMillis();
-                        if(now - lastRequestTime > 200){
-                            lastRequestTime = now;
-                            requestRender();
-                        }
+                        requestRender();
 
                         break;
                     default:

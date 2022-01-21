@@ -44,7 +44,7 @@ void Model3DSample::Init()
 
 	char vShaderStr[] =
 			"#version 300 es\n"
-            "precision mediump float;\n"
+            "precision highp float;\n"
 			"layout (location = 0) in vec3 a_position;\n"
 			"layout (location = 1) in vec3 a_normal;\n"
 			"layout (location = 2) in vec2 a_texCoord;\n"
