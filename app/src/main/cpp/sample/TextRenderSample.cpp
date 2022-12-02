@@ -185,43 +185,29 @@ void TextRenderSample::RenderText(int screenW, int screenH, std::string text, GL
 	glBindVertexArray(m_VaoId);
 
 	std::string::const_iterator c;
-	x *= viewport.x;
-	y *= viewport.y;
-
-	GLfloat aw = 0.0f;
-	for (c = text.begin(); c != text.end(); c++)
-	{
-		Character ch = m_Characters[*c];
-		aw += (ch.size.x * scale);
-	}
-	aw /= 2;
+	int len = text.length();
+	z -= screenW / 2 * len;
 	for (c = text.begin(); c != text.end(); c++)
 	{
 		Character ch = m_Characters[*c];
 
-		GLfloat xpos = x + ch.bearing.x * scale - aw + (ch.size.x * scale / 2);
-		GLfloat ypos = y - (ch.size.y - ch.bearing.y) * scale;
+		GLfloat xpos = x;
+		GLfloat ypos = y;
 
-		xpos /= viewport.x;
-		ypos /= viewport.y;
+		GLfloat w = m_SurfaceWidth;
+		GLfloat h = m_SurfaceHeight;
 
-		GLfloat w = ch.size.x * scale;
-		GLfloat h = ch.size.y * scale;
-
-		w /= viewport.x;
-		h /= viewport.y;
-
-		LOGCATE("TextRenderSample::RenderText [xpos,ypos,w,h]=[%f, %f, %f, %f], ch.advance >> 6 = %d", xpos, ypos, w, h, ch.advance >> 6);
+		LOGCATE("TextRenderSample::RenderText [xpos,ypos,w,h]=[%f, %f, %f, %f, %f, %f], ch.advance >> 6 = %d", xpos, ypos, w, h, x, y, ch.advance >> 6);
 
 		// 当前字符的VBO
 		GLfloat vertices[] = {
-				xpos - w / 2,     ypos + h,   z,
-				xpos - w / 2,     ypos,       z,
-				xpos + w / 2, ypos,       z,
+				xpos,     ypos + h,   z,
+				xpos,     ypos,       z,
+				xpos, ypos,       z + w,
 
-				xpos - w / 2,     ypos + h,   z,
-				xpos + w / 2, ypos,       z,
-				xpos + w / 2, ypos + h,   z,
+				xpos,     ypos + h,   z,
+				xpos, ypos,       z + w,
+				xpos, ypos + h,   z + w,
 		};
 		GLfloat textureCoords[] = {
 				0.0, 0.0 ,
@@ -254,7 +240,7 @@ void TextRenderSample::RenderText(int screenW, int screenH, std::string text, GL
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		GO_CHECK_GL_ERROR();
 		// 更新位置到下一个字形的原点，注意单位是1/64像素
-		x += (ch.advance >> 6) * scale; //(2^6 = 64)
+		z += w; //(2^6 = 64)
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);

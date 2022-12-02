@@ -175,7 +175,7 @@ void Model3DSample::Draw(int screenW, int screenH)
     int size = m_pModel->meshes.size();
     for(unsigned int i = 0; i < size; i++){
         mLineSample.DrawLine(screenW, screenH, pos[i][0], pos[i][1], pos[i][2], color[i], lw, bw, lh);
-        mTextSample.RenderText(screenW, screenH, std::to_string(i), pos[i][0] - lw / 2, pos[i][1] + lh + 10.0f, pos[i][2] + 4.0f, 800.0f, color[i%200+1]);
+        mTextSample.RenderText(bw, bw, std::to_string(i), pos[i][0] - 3, pos[i][1] + lh + 10.0f, pos[i][2], 1.0f, color[i%200+1]);
     }
 
 }
@@ -208,7 +208,7 @@ void Model3DSample::UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY
 {
 	LOGCATE("Model3DSample::UpdateMVPMatrix angleX = %d, angleY = %d, ratio = %f", angleX, angleY, ratio);
 	angleX = angleX % 360;
-	angleY = angleY % 360;
+	angleY = (angleY + 90) % 360;
 
 	//转化为弧度角
 	float radiansX = static_cast<float>(MATH_PI / 180.0f * angleX);
@@ -295,17 +295,17 @@ void LineSample::DrawLine(int screenW, int screenH, GLfloat x, GLfloat y, GLfloa
     GLfloat vVertices[] = {
             x,         y + lh,    z,
             x,         y,         z,
-            x + lw,    y,         z,
+            x ,        y,         z+ lw,
             x,         y + lh,    z,
-            x + lw,    y,         z,
-            x + lw,    y + lh,    z,
+            x ,        y,         z+ lw,
+            x ,        y + lh,    z+ lw,
 
-            x - bw + lw12,    y + lh + bw2,  z,
-            x - bw + lw12,    y + lh,        z,
-            x + bw + lw12,    y + lh,        z,
-            x - bw + lw12,    y + lh + bw2,  z,
-            x + bw + lw12,    y + lh,        z,
-            x + bw + lw12,    y + lh + bw2,  z,
+            x,    y + lh + bw2,  z - bw + lw12,
+            x,    y + lh,        z - bw + lw12,
+            x,    y + lh,        z + bw + lw12,
+            x,    y + lh + bw2,  z - bw + lw12,
+            x,    y + lh,        z + bw + lw12,
+            x,    y + lh + bw2,  z + bw + lw12,
     };
 
     // Use the program object
