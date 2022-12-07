@@ -186,7 +186,7 @@ void TextRenderSample::RenderText(int screenW, int screenH, std::string text, GL
 
 	std::string::const_iterator c;
 	int len = text.length();
-	z -= screenW / 2 * len;
+	z += screenW / 2 * len;
 	for (c = text.begin(); c != text.end(); c++)
 	{
 		Character ch = m_Characters[*c];
@@ -201,13 +201,13 @@ void TextRenderSample::RenderText(int screenW, int screenH, std::string text, GL
 
 		// 当前字符的VBO
 		GLfloat vertices[] = {
-				xpos,     ypos + h,   z,
-				xpos,     ypos,       z,
-				xpos, ypos,       z + w,
+				xpos,     ypos + h,   z ,
+				xpos,     ypos,       z ,
+				xpos,     ypos,       z - w,
 
 				xpos,     ypos + h,   z,
-				xpos, ypos,       z + w,
-				xpos, ypos + h,   z + w,
+				xpos,     ypos,       z - w,
+				xpos,     ypos + h,   z - w,
 		};
 		GLfloat textureCoords[] = {
 				0.0, 0.0 ,
@@ -240,7 +240,7 @@ void TextRenderSample::RenderText(int screenW, int screenH, std::string text, GL
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		GO_CHECK_GL_ERROR();
 		// 更新位置到下一个字形的原点，注意单位是1/64像素
-		z += w; //(2^6 = 64)
+		z -= w; //(2^6 = 64)
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
